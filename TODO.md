@@ -41,31 +41,31 @@
 ## Phase 3 — Commercial Contracts & Versioning
 *Define how BomTrato gets paid per school/mantenedora without hardcoding rules.*
 
-- [ ] Create `commercial_contracts` and immutable `contract_versions` migrations & models (rate structure, attribution window days, eligible components, PSP fee treatment, billing closing day, approval rules — all nullable/explicitly configured)
-- [ ] Build contract versioning service (editing rules creates a new effective version; historic approved calculations stay tied to their original `contract_version_id`)
-- [ ] Create Filament `CommercialContractResource` with version history relation manager
-- [ ] Add unit tests verifying contract version immutability
+- [x] Create `commercial_contracts` and immutable `contract_versions` migrations & models (rate structure, attribution window days, eligible components, PSP fee treatment, billing closing day, approval rules — all nullable/explicitly configured)
+- [x] Build contract versioning service (editing rules creates a new effective version; historic approved calculations stay tied to their original `contract_version_id`)
+- [x] Create Filament `CommercialContractResource` with version history relation manager
+- [x] Add unit tests verifying contract version immutability
 
 ---
 
 ## Phase 4 — Receivables (Students, Guardians & Debts)
 *Bring the overdue tuition data in cleanly and without duplicates.*
 
-- [ ] Create `students`, `guardians`, and `student_guardians` (many-to-many with responsibility type) migrations & models
-- [ ] Create `enrollment_contracts`, `debts`, and `debt_installments` migrations & models (using minor-unit integer centavos for amounts; separate lifecycle status from flags like `disputed`, `suspended`, `under_payment_verification`)
-- [ ] Build Filament resources for `GuardianResource`, `StudentResource`, and `DebtResource` (with duplicate CPF/CNPJ search & warning)
-- [ ] Build Debt Import Service + Filament import action (CSV/Excel preview, validation, duplicate detection, `import_jobs` audit log)
-- [ ] Add feature tests for duplicate prevention and guardian-to-multiple-students mapping
+- [x] `students`, `guardians`, and `student_guardians` (many-to-many with responsibility type) migrations & models
+- [x] `enrollment_contracts`, `debts`, and `debt_installments` migrations & models (using minor-unit integer centavos for amounts; separate lifecycle status from flags like `disputed`, `suspended`, `under_payment_verification`)
+- [x] Build Filament resources for `GuardianResource`, `StudentResource`, and `DebtResource` (with duplicate CPF/CNPJ search & warning)
+- [x] Build Debt Import Service + Filament import action (CSV/Excel preview, validation, duplicate detection, `import_jobs` audit log)
+- [x] Add feature tests for duplicate prevention and guardian-to-multiple-students mapping
 
 ---
 
 ## Phase 5 — Assignments & Collector Workflow
 *Put debts into collectors' hands and track every respectful touchpoint.*
 
-- [ ] Create `debt_assignments` (collector, assigned_at, ended_at), `collection_actions` (channel, outcome, notes, `is_internal` flag, evidence attachment on private disk), and `collection_tasks` (follow-up reminders)
-- [ ] Build Debt Lifecycle Service (enforce transitions like `IMPORTED → PENDING_VERIFICATION → READY_FOR_COLLECTION → ACTIVE_COLLECTION`, plus `disputed`/`suspended` holds)
-- [ ] Build Collector Workspace in Filament: "Today's Tasks" widget, assigned portfolio table, case detail view with action timeline & quick-log action
-- [ ] Add tests ensuring internal notes are flagged/excluded from school-facing queries and disputed debts pause collection
+- [x] Create `debt_assignments` (collector, assigned_at, ended_at), `collection_actions` (channel, outcome, notes, `is_internal` flag, evidence attachment on private disk), and `collection_tasks` (follow-up reminders)
+- [x] Build Debt Lifecycle Service (enforce transitions like `IMPORTED → PENDING_VERIFICATION → READY_FOR_COLLECTION → ACTIVE_COLLECTION`, plus `disputed`/`suspended` holds)
+- [x] Build Collector Workspace in Filament: "Today's Tasks" widget, assigned portfolio table, case detail view with action timeline & quick-log action
+- [x] Add tests ensuring internal notes are flagged/excluded from school-facing queries and disputed debts pause collection
 
 ---
 
@@ -131,3 +131,10 @@
 - [ ] Verify private disk downloads use signed/authorized controller routes (no public storage leaks)
 - [ ] Backup & restore dry-run on SQLite / target production DB
 - [ ] Legal & accounting sign-off on commercial contract rules + PSP sandbox-to-production checklist
+- [ ] Implement `FilamentUser::canAccessPanel()` on `User` (block inactive/unassigned users from `/admin` before production)
+
+---
+
+## Backlog — Team / Process (not scheduled)
+
+- [ ] Simulated-user agents: AIs that act as real users (collector, manager, finance, legal, school_viewer), each with their own account/login, working through the app like in real life (realistic sessions, not scripted tests) to surface usability, permission and data-leak issues

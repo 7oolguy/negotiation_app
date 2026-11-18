@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -40,6 +41,26 @@ class User extends Authenticatable
         return $this->belongsToMany(School::class)->withTimestamps();
     }
 
+    public function debtAssignments(): HasMany
+    {
+        return $this->hasMany(DebtAssignment::class, 'collector_id');
+    }
+
+    public function activeDebtAssignments(): HasMany
+    {
+        return $this->hasMany(DebtAssignment::class, 'collector_id')->whereNull('ended_at');
+    }
+
+    public function collectionActions(): HasMany
+    {
+        return $this->hasMany(CollectionAction::class, 'user_id');
+    }
+
+    public function collectionTasks(): HasMany
+    {
+        return $this->hasMany(CollectionTask::class, 'assigned_to');
+    }
+
     /**
      * Determine whether the user is restricted to their assigned schools.
      */
@@ -50,14 +71,28 @@ class User extends Authenticatable
     }
 
     /**
+     * Determine whether the user operates strictly as a collector (not manager/admin).
+     */
+    public function isCollectorOnly(): bool
+    {
+        return $this->hasRole('collector')
+            && ! $this->hasAnyRole(['super_admin', 'superadmin', 'manager']);
+    }
+
+    /**
      * Determine whether the user can access the given school.
      */
     public function canAccessSchool(School $school): bool
+    {
+        return $this->canAccessSchoolId((int) $school->getKey());
+    }
+
+    public function canAccessSchoolId(int $schoolId): bool
     {
         if (! $this->isSchoolScoped()) {
             return true;
         }
 
-        return $this->schools()->whereKey($school->getKey())->exists();
+        return $this->schools()->whereKey($schoolId)->exists();
     }
 }
